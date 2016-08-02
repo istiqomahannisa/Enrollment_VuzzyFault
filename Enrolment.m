@@ -95,7 +95,7 @@ for i=1:m
 Vx(i,1)=str2num(strcat(num2str(M(i,1)),num2str(M(i,2))));
 end
 
-%Vx= [1;30;70;100;150;200;250;300;350;400;450;500;1000;2323];
+Vx= [1;30;70;100;150;200;250;300;350;400;450;500;1000;2323];
 
 %polynomial reconstruction of S to form y-axis value for fuzzy vault
 [k,l]=size(S);
