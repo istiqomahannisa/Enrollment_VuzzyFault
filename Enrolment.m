@@ -3,9 +3,9 @@
 %Description: produce genuine points in early stage from dummy feature
 %points and dummy secret keys
 
-%M = minutiae points in the form of tuple matrix m = (mx my)
+%all minutiae points from feature extraction = minutiae points in the form of tuple matrix m = (mx my)
 %{
-M = [175    28;
+M_ori = [175    28;
    176    28;
    117    35;
    199    35;
@@ -60,10 +60,13 @@ M = [175    28;
    155   134;
    124   135];
    %}
+%selected minutiae points
 M= [20 10;31 42;51 64;44 56;26 34;2 4;3 4;4 5;1 1;12 3;56 7;34 5;34 56;90 45];
+
 % degree of polynomial 8th
 p = 8;
-%S = cryptographic key is 144 bit (ex. AES 128 bits plus CRC 16 bits) 
+
+%S_16bits = cryptographic key is 144 bit (ex. AES 128 bits plus CRC 16 bits) 
 %{
 S_ori = [1 1 0 1 1 0 1 0 1 0 1 0 1 0 1 0; 
          1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0;
@@ -75,6 +78,7 @@ S_ori = [1 1 0 1 1 0 1 0 1 0 1 0 1 0 1 0;
          1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0;
          1 0 1 0 1 0 1 0 1 0 1 1 1 1 1 0];
 %}
+%S_ori size: 4bits
 S_ori=[ 0 1 0 0;
     0 0 1 0;
     1 0 1 0;
@@ -85,29 +89,29 @@ S_ori=[ 0 1 0 0;
     0 0 0 1;
     0 0 1 0];
 %convert binary to decimal of the secret key
-S=bi2de(S_ori);
+S=mod(bi2de(S_ori),65536);
 
-%concate each minutiae coordinate to form x-axis value for fuzzy vault
+%convert decimal to string of binary of the selected minutiae points
+%concate each minutiae coordinate in binary to form x-axis value for fuzzy
+%vault and convert again into decimal
 %template
 [m,n]=size(M);
 Vx=zeros(m,1);
 for i=1:m
-Vx(i,1)=str2num(strcat(num2str(M(i,1)),num2str(M(i,2))));
+Vx(i)=mod(bin2dec(strcat(dec2bin(M(i,1),8),dec2bin(M(i,2),8))),65536);
 end
 
-Vx= [1;30;70;100;150;200;250;300;350;400;450;500;1000;2323];
 
 %polynomial reconstruction of S to form y-axis value for fuzzy vault
 [k,l]=size(S);
 Vy=zeros(m,1);
 for i=1:m
     for j=1:k
-    Vy(i)=Vy(i)+S(j)*Vx(i)^(k-j);
+    Vy(i)=mod(Vy(i),65536)+S(j)*Vx(i)^(k-j);
     end
 end
 
-%polynomial reconstruction v.2
-%Vy(:1)
+
 
 %concatenate Vx and Vy to make G as a tuple of (Vx,Vy)
 G=cat(2,Vx,Vy);
